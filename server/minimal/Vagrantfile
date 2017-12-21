@@ -12,9 +12,9 @@ VM_USER = 'vagrant'
 # Username on your Mac
 MAC_USER = 'John'
 # Host folder to sync
-HOST_PATH = '/Users/' + MAC_USER + '/' + VM_NAME
+#HOST_PATH = '/Users/' + MAC_USER + '/' + VM_NAME
 # Where to sync to on Guest — 'vagrant' is the default user name
-GUEST_PATH = '/home/' + VM_USER + '/' + VM_NAME
+#GUEST_PATH = '/home/' + VM_USER + '/' + VM_NAME
 # # VM Port — uncomment this to use NAT instead of DHCP
 VM_PORT = 2223
 Vagrant.configure(2) do |config|
@@ -62,48 +62,16 @@ Vagrant.configure(2) do |config|
   #config.vm.network "forwarded_port", guest: 22, host: VM_PORT
   # Sync folder
   ###config.vm.synced_folder HOST_PATH, GUEST_PATH
+
   # Disable default Vagrant folder, use a unique path per project
   config.vm.synced_folder '.', '/home/'+VM_USER+'', disabled: true
 
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-#    apt-get install -y git xauth
-    apt-get update
-    #apt-get upgrade -y  # next line runs not interactively and won't fail
-    DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade
+    apt-get upgrade -y
     apt-get autoremove -y
   SHELL
 
-#  config.vm.provision "shell", privileged: false, inline: <<-SHELL
-#    git clone https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
-#    cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
-    #sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="3den"/g' ~/.zshrc
-#  SHELL
-#  config.vm.provision :shell, inline: "chsh -s /bin/zsh vagrant"
-
-#  config.vm.provision "shell", inline: <<-SHELL
-    #cp /home/vagrant/.oh-my-zsh/templates/zshrc.zsh-template /home/vagrant/.zshrc
-    # maybe chmod?
-    #cp /home/vagrant/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
-    #sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="3den"/g' ~/.zshrc
-#  SHELL
-
-#  config.vm.provision 'shell', inline: <<-SHELL
-#    cat << 'EOF' >> /home/vagrant/.zshrc
-#bindkey "^[[1~" beginning-of-line # tmux
-#bindkey "^[[4~" end-of-line # tmux
-#if [[ ! $TERM =~ "screen".* ]]; then
-#  tmux attach -t base || tmux new -s base
-#fi
-#EOF
-
-#    cat << 'EOF' >> /etc/vim/vimrc
-#if has("autocmd")
-#  au BufReadPost * if line("'\\"") > 1 && line("'\\"") <= line("$") | exe "normal! g'\\"" | endif
-#endif
-#EOF
-
-#  SHELL
-
 
 end
+

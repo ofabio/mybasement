@@ -18,11 +18,7 @@ default_shell:
     - require:
       - pkg: zsh
 
-#oh_my_zsh_template:
-#  cmd:
-#    name: "cp /home/vagrant/.oh-my-zsh/templates/zshrc.zsh-template /home/vagrant/.zshrc"
-#    - require:
-#      - git: .oh_my_zsh
+# Copy template
 
 /home/vagrant/.zshrc:
   file.copy:
@@ -30,3 +26,5 @@ default_shell:
     - require:
       - git: oh_my_zsh
 
+
+#sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="3den"/g' ~/.zshrc

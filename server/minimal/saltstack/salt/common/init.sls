@@ -2,13 +2,6 @@ include:
   - common.packages
   - common.oh_my_zsh
 
-#zsh_install:
-#  cmd.run:
-#- user: vagrant
-#   git clone https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
-#    cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
-#    #sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="3den"/g' ~/.zshrc
-
 zsh_rc:
   file.append:
     - name: /home/vagrant/.zshrc
@@ -18,9 +11,8 @@ zsh_rc:
         if [[ ! $TERM =~ "screen".* ]]; then
           tmux attach -t base || tmux new -s base
         fi
-#    - require:
-#      - file: /home/vagrant/.zshrc
-#      - cmd: oh_my_zsh_template
+
+# vim remember last position
 
 vim_rc:
   file.append:
@@ -31,5 +23,5 @@ vim_rc:
         endif
 
 
-# sudo su
-# salt-call state.highstate
+# for testing run on the VM:
+# sudo salt-call state.highstate
