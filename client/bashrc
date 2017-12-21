@@ -1,0 +1,4 @@
+export office=10.237.158.14
+export vm1=2222
+alias ssh_minimal="ssh -p $vm1 vagrant@office"
+

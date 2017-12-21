@@ -1,0 +1,91 @@
+# encoding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+# Box / OS
+#VAGRANT_BOX = 'minimal/xenial64'
+#VAGRANT_BOX = 'hashicorp/precise64'
+VAGRANT_BOX = 'ubuntu/trusty64'
+# Memorable name for your
+VM_NAME = 'minimal'
+# VM User — 'vagrant' by default
+VM_USER = 'vagrant'
+# Username on your Mac
+MAC_USER = 'John'
+# Host folder to sync
+HOST_PATH = '/Users/' + MAC_USER + '/' + VM_NAME
+# Where to sync to on Guest — 'vagrant' is the default user name
+GUEST_PATH = '/home/' + VM_USER + '/' + VM_NAME
+# # VM Port — uncomment this to use NAT instead of DHCP
+VM_PORT = 2223
+Vagrant.configure(2) do |config|
+  config.proxy.http     = "http://proxy-chain.intel.com:911/"
+  config.proxy.https    = "http://proxy-chain.intel.com:911/"
+  config.proxy.no_proxy = "localhost,127.0.0.1"
+
+  config.vm.box_check_update = false
+
+  # Vagrant box from Hashicorp
+  config.vm.box = VAGRANT_BOX
+
+  # Actual machine name
+  config.vm.hostname = VM_NAME
+  # Set VM name in Virtualbox
+  config.vm.provider "virtualbox" do |v|
+    v.name = VM_NAME
+    v.memory = 2048
+    v.customize ["modifyvm", :id, "--memory", "1024"]
+    v.customize ["modifyvm", :id, "--vrde", "on"]
+    #v.customize ["modifyvm", :id, "--vrdeport", "5002-5020"]
+    v.customize ["modifyvm", :id, "--vrdeport", "3389"]
+    #v.gui = true
+  end
+
+  ssh_pub_key = File.readlines("#{Dir.home}/.ssh/id_rsa.pub").first.strip
+  config.vm.provision 'shell', inline: 'mkdir -p /root/.ssh'
+  config.vm.provision 'shell', inline: "echo #{ssh_pub_key} >> /root/.ssh/authorized_keys"
+  config.vm.provision 'shell', inline: "echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys", privileged: false
+
+
+  #DHCP — comment this out if planning on using NAT instead
+  #config.vm.network "private_network", type: "dhcp"
+  # # Port forwarding — uncomment this to use NAT instead of DHCP
+  #config.vm.network "forwarded_port", guest: 22, host: VM_PORT
+  # Sync folder
+  ###config.vm.synced_folder HOST_PATH, GUEST_PATH
+  # Disable default Vagrant folder, use a unique path per project
+  config.vm.synced_folder '.', '/home/'+VM_USER+'', disabled: true
+  # Install Git, Node.js 6.x.x, Latest npm
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get install -y git zsh xauth tmux
+    apt-get update
+    #apt-get upgrade -y  # next line runs not interactively and won't fail
+    DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade
+    apt-get autoremove -y
+  SHELL
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    git clone https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
+    cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+    #sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="3den"/g' ~/.zshrc
+  SHELL
+  config.vm.provision :shell, inline: "chsh -s /bin/zsh vagrant"
+
+  config.vm.provision 'shell', inline: <<-SHELL
+    cat << 'EOF' >> /home/vagrant/.zshrc
+bindkey "^[[1~" beginning-of-line # tmux
+bindkey "^[[4~" end-of-line # tmux
+if [[ ! $TERM =~ "screen".* ]]; then
+  tmux attach -t base || tmux new -s base
+fi
+EOF
+
+    cat << 'EOF' >> /etc/vim/vimrc
+if has("autocmd")
+  au BufReadPost * if line("'\\"") > 1 && line("'\\"") <= line("$") | exe "normal! g'\\"" | endif
+endif
+EOF
+
+  SHELL
+
+
+end

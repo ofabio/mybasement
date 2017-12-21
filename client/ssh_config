@@ -1,0 +1,3 @@
+Host office
+  ProxyCommand ssh -q -W %h:%p fpricoco@$office
+
