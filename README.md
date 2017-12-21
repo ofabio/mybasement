@@ -1,2 +1,2 @@
 # mybasement
-configure a host with easy-to-access virtual boxes
+set up a host with Vagrant boxes easy to access remotely
